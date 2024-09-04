@@ -1,5 +1,4 @@
 import axios from "axios";
-
 const DOMAIN: string = "https://movieapi.cyberlearn.vn/api";
 export const ACCESS_TOKEN: string = "accessToken";
 export const ROLE: string = "role";
@@ -23,7 +22,7 @@ http.interceptors.request.use(
   },
   (error) => {
     return Promise.reject(error);
-  }
+  },
 );
 
 http.interceptors.response.use(
@@ -42,7 +41,7 @@ http.interceptors.response.use(
       window.location.href = "/login";
     }
     return Promise.reject(error);
-  }
+  },
 );
 
 export default http;

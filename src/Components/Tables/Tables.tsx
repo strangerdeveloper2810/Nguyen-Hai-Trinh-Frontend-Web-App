@@ -5,7 +5,7 @@ import { User } from "@/types/user";
 import { useAppContext } from "@/app/context/AppProvider";
 import Button from "@mui/material/Button";
 import Modal from "../Modal";
-
+import http from "@/utils/setting";
 interface TablesProps {
   listUsers: User[];
 }
@@ -20,6 +20,27 @@ const Tables: React.FC<TablesProps> = ({ listUsers = [] }) => {
 
   const handleCloseModal = () => {
     setOpenModal(false);
+  };
+
+  const handleDeleteUser = async (taiKhoan: string) => {
+    try {
+      const res = await http.delete(
+        `/QuanLyNguoiDung/XoaNguoiDung?TaiKhoan=${encodeURIComponent(taiKhoan)}`,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        },
+      );
+      if (_.get(res, "status") === 200) {
+        alert("Xoá người dùng thành công");
+        window.location.reload();
+      } else {
+        alert("Error deleting user");
+      }
+    } catch (error) {
+      alert(_.get(error, "response.data.content"));
+    }
   };
 
   const renderTableContent = () => {
@@ -65,7 +86,10 @@ const Tables: React.FC<TablesProps> = ({ listUsers = [] }) => {
                   />
                 </svg>
               </button>
-              <button className="hover:text-red-700">
+              <button
+                className="hover:text-red-700"
+                onClick={() => handleDeleteUser(_.get(user, "taiKhoan"))}
+              >
                 <svg
                   className="fill-current"
                   width="18"
@@ -103,7 +127,13 @@ const Tables: React.FC<TablesProps> = ({ listUsers = [] }) => {
 
   return (
     <div className="overflow-x-auto">
-      <Button variant="outlined" onClick={handleClickOpenModal}>
+      <Button
+        variant="outlined"
+        onClick={handleClickOpenModal}
+        sx={{
+          marginBottom: "10px",
+        }}
+      >
         Add User
       </Button>
       <table className="w-full table-auto">
@@ -136,12 +166,7 @@ const Tables: React.FC<TablesProps> = ({ listUsers = [] }) => {
         <tbody>{renderTableContent()}</tbody>
       </table>
       {openModal && (
-        <Modal
-          openModal={openModal}
-          handleClickOpenModal={handleClickOpenModal}
-          handleCloseModal={handleCloseModal}
-          handleAddUser={handleAddUser}
-        />
+        <Modal openModal={openModal} handleCloseModal={handleCloseModal} />
       )}
     </div>
   );

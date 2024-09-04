@@ -5,7 +5,7 @@ import { User } from "@/types/user";
 export const UserManagementService = {
   getListUser: async () => {
     const res = await http.get(
-      "/QuanLyNguoiDung/LayDanhSachNguoiDungPhanTrang?MaNhom=GP01&soTrang=1&soPhanTuTrenTrang=20"
+      "/QuanLyNguoiDung/LayDanhSachNguoiDungPhanTrang?MaNhom=GP01&soTrang=1&soPhanTuTrenTrang=20",
     );
 
     try {
