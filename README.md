@@ -156,11 +156,3 @@ yarn lint
 2. Create a new branch for your feature or bug fix.
 3. Make your changes.
 4. Submit a pull request.
-
-### License
-
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.
-
----
-
-Let me know if you need any modifications or additional information in the documentation!
