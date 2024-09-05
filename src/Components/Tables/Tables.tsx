@@ -13,6 +13,16 @@ interface TablesProps {
 const Tables: React.FC<TablesProps> = ({ listUsers = [] }) => {
   const { accessToken, role } = useAppContext();
   const [openModal, setOpenModal] = useState(false);
+  const [openModalEdit, setOpenModalEdit] = useState(false);
+  const [userEdit, setUserEedit] = useState<User>({
+    taiKhoan: "",
+    matKhau: "",
+    email: "",
+    soDt: "",
+    maNhom: "GP01",
+    maLoaiNguoiDung: "",
+    hoTen: "",
+  });
 
   const handleClickOpenModal = () => {
     setOpenModal(true);
@@ -22,15 +32,23 @@ const Tables: React.FC<TablesProps> = ({ listUsers = [] }) => {
     setOpenModal(false);
   };
 
+  const handleEditUser = async (userInfo: User) => {
+    setUserEedit({ ...userInfo });
+    setOpenModal(true);
+    setOpenModalEdit(true);
+  };
+
   const handleDeleteUser = async (taiKhoan: string) => {
     try {
       const res = await http.delete(
-        `/QuanLyNguoiDung/XoaNguoiDung?TaiKhoan=${encodeURIComponent(taiKhoan)}`,
+        `/QuanLyNguoiDung/XoaNguoiDung?TaiKhoan=${encodeURIComponent(
+          taiKhoan
+        )}`,
         {
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
-        },
+        }
       );
       if (_.get(res, "status") === 200) {
         alert("Xoá người dùng thành công");
@@ -67,7 +85,10 @@ const Tables: React.FC<TablesProps> = ({ listUsers = [] }) => {
         {accessToken && role === "QuanTri" ? (
           <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
             <div className="flex items-center space-x-3.5">
-              <button className="hover:text-blue-700">
+              <button
+                className="hover:text-blue-700"
+                onClick={() => handleEditUser(user)}
+              >
                 <svg
                   className="fill-current"
                   width="18"
@@ -166,7 +187,12 @@ const Tables: React.FC<TablesProps> = ({ listUsers = [] }) => {
         <tbody>{renderTableContent()}</tbody>
       </table>
       {openModal && (
-        <Modal openModal={openModal} handleCloseModal={handleCloseModal} />
+        <Modal
+          openModal={openModal}
+          handleCloseModal={handleCloseModal}
+          openModalEdit={openModalEdit}
+          userEdit={userEdit}
+        />
       )}
     </div>
   );

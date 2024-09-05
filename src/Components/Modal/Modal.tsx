@@ -1,5 +1,5 @@
 import _ from "lodash";
-import * as React from "react";
+import React, { useEffect } from "react";
 import Button from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
@@ -15,9 +15,16 @@ import http from "@/utils/setting";
 interface ModalProps {
   openModal: boolean;
   handleCloseModal: () => void;
+  openModalEdit: boolean;
+  userEdit: User;
 }
 
-const Modal: React.FC<ModalProps> = ({ openModal, handleCloseModal }) => {
+const Modal: React.FC<ModalProps> = ({
+  openModal,
+  handleCloseModal,
+  openModalEdit,
+  userEdit,
+}) => {
   const { accessToken } = useAppContext();
 
   const handleAddUser = async (user: User) => {
@@ -35,6 +42,27 @@ const Modal: React.FC<ModalProps> = ({ openModal, handleCloseModal }) => {
     }
   };
 
+  const handleEditUser = async (user: User) => {
+    try {
+      const res = await http.put(
+        `/QuanLyNguoiDung/CapNhatThongTinNguoiDung`,
+        user,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
+      if (_.get(res, "status") === 200) {
+        alert("Cập nhật người dùng thành công");
+      } else {
+        alert(_.get(res, "content", ""));
+      }
+    } catch (error) {
+      console.error("Error editing user:", error);
+    }
+  };
+
   const formik = useFormik<User>({
     initialValues: {
       taiKhoan: "",
@@ -47,23 +75,42 @@ const Modal: React.FC<ModalProps> = ({ openModal, handleCloseModal }) => {
     },
     validationSchema,
     onSubmit: async (values: User) => {
-      await handleAddUser(values);
+      if (openModalEdit) {
+        await handleEditUser(values);
+      } else {
+        await handleAddUser(values);
+      }
       handleCloseModal(); // Close the modal after submission
     },
   });
 
-  const { values, errors, touched, handleSubmit, handleChange, handleBlur } =
-    formik;
+  const {
+    values,
+    errors,
+    touched,
+    handleSubmit,
+    handleChange,
+    handleBlur,
+    setValues,
+  } = formik;
+
+  useEffect(() => {
+    if (openModalEdit) {
+      setValues(userEdit); // Update form values when userEdit changes
+    }
+  }, [userEdit, openModalEdit, setValues]);
 
   return (
     <React.Fragment>
       <Dialog
-        open={openModal}
+        open={openModal || openModalEdit}
         onClose={handleCloseModal}
         aria-labelledby="add-user-dialog-title"
         aria-describedby="add-user-dialog-description"
       >
-        <DialogTitle id="add-user-dialog-title">Add New User</DialogTitle>
+        <DialogTitle id="add-user-dialog-title">
+          {openModalEdit ? "Edit User" : "Add New User"}
+        </DialogTitle>
         <DialogContent>
           <form onSubmit={handleSubmit}>
             <TextField
